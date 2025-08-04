@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Nutrition Guide: Macronutrients & Micronutrients</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nutrient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .nutrient-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nutrient-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .nutrient-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .nutrient-card h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nutrient-icon {
+            font-size: 1.8rem;
+        }
+
+        .nutrient-info {
+            color: #5a6c7d;
+            margin-bottom: 15px;
+        }
+
+        .food-sources {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .food-sources h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .food-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .food-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .daily-value {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .daily-value strong {
+            color: #155724;
+        }
+
+        .intro-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .intro-section h2 {
+            color: #8b4513;
+            margin-bottom: 15px;
+        }
+
+        .intro-section p {
+            color: #6b4423;
+            font-size: 1.1rem;
+        }
+
+        .citations {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .citations h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .citation-list {
+            list-style: none;
+        }
+
+        .citation-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .citation-list a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .citation-list a:hover {
+            text-decoration: underline;
+        }
+
+        .expandable {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .expand-icon {
+            float: right;
+            transition: transform 0.3s ease;
+        }
+
+        .expandable.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .hidden-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .hidden-content.show {
+            max-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .nutrient-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥗 Complete Nutrition Guide</h1>
+            <p>Your Interactive Guide to Macronutrients & Micronutrients</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="showTab('macros')">Macronutrients</button>
+            <button class="nav-tab" onclick="showTab('vitamins')">Vitamins</button>
+            <button class="nav-tab" onclick="showTab('minerals')">Minerals</button>
+            <button class="nav-tab" onclick="showTab('sources')">Sources</button>
+        </div>
+
+        <div class="content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="intro-section">
+                    <h2>Understanding Nutrition Basics</h2>
+                    <p>Nutrients are substances your body needs to function properly. They're divided into macronutrients (needed in large amounts) and micronutrients (needed in smaller amounts but equally important).</p>
+                </div>
+
+                <div class="nutrient-grid">
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🍞</span> Macronutrients</h3>
+                        <div class="nutrient-info">
+                            <p><strong>What they are:</strong> Carbohydrates, proteins, and fats that provide energy and building blocks for your body.</p>
+                            <p><strong>Daily needs:</strong> Measured in grams</p>
+                            <p><strong>Primary function:</strong> Energy production and tissue building</p>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">💊</span> Micronutrients</h3>
+                        <div class="nutrient-info">
+                            <p><strong>What they are:</strong> Vitamins and minerals needed in small amounts for proper body function.</p>
+                            <p><strong>Daily needs:</strong> Measured in milligrams or micrograms</p>
+                            <p><strong>Primary function:</strong> Metabolic processes and disease prevention</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macronutrients Tab -->
+            <div id="macros" class="tab-content">
+                <h2>Macronutrients: Your Body's Main Fuel</h2>
+                
+                <div class="nutrient-grid">
+                    <div class="nutrient-card expandable" onclick="toggleExpand(this)">
+                        <h3><span class="nutrient-icon">🍞</span> Carbohydrates <span class="expand-icon">▼</span></h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Primary energy source for your brain and muscles</p>
+                            <p><strong>Types:</strong> Simple (sugars) and Complex (starches, fiber)</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Recommended:</strong> 45-65% of daily calories
+                        </div>
+                        <div class="food-sources">
+                            <h4>Best Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Whole grains</span>
+                                <span class="food-item">Fruits</span>
+                                <span class="food-item">Vegetables</span>
+                                <span class="food-item">Legumes</span>
+                            </div>
+                        </div>
+                        <div class="hidden-content">
+                            <p><strong>Why you need them:</strong> Carbohydrates are broken down into glucose, which fuels cellular processes. Complex carbs provide sustained energy and fiber for digestive health.</p>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card expandable" onclick="toggleExpand(this)">
+                        <h3><span class="nutrient-icon">🥩</span> Proteins <span class="expand-icon">▼</span></h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Building and repairing tissues, making enzymes and hormones</p>
+                            <p><strong>Components:</strong> Made of amino acids (9 essential)</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Recommended:</strong> 10-35% of daily calories (0.8g/kg body weight)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Best Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Lean meats</span>
+                                <span class="food-item">Fish</span>
+                                <span class="food-item">Eggs</span>
+                                <span class="food-item">Beans</span>
+                                <span class="food-item">Nuts</span>
+                            </div>
+                        </div>
+                        <div class="hidden-content">
+                            <p><strong>Complete vs. Incomplete:</strong> Animal proteins contain all essential amino acids. Plant proteins often need to be combined to provide complete amino acid profiles.</p>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card expandable" onclick="toggleExpand(this)">
+                        <h3><span class="nutrient-icon">🥑</span> Fats <span class="expand-icon">▼</span></h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Energy storage, hormone production, nutrient absorption</p>
+                            <p><strong>Types:</strong> Saturated, unsaturated, trans fats</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Recommended:</strong> 20-35% of daily calories
+                        </div>
+                        <div class="food-sources">
+                            <h4>Healthy Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Olive oil</span>
+                                <span class="food-item">Avocados</span>
+                                <span class="food-item">Nuts</span>
+                                <span class="food-item">Fatty fish</span>
+                            </div>
+                        </div>
+                        <div class="hidden-content">
+                            <p><strong>Essential fatty acids:</strong> Omega-3 and omega-6 fatty acids must be obtained from food as your body cannot produce them.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vitamins Tab -->
+            <div id="vitamins" class="tab-content">
+                <h2>Vitamins: Essential Micronutrients</h2>
+                
+                <div class="nutrient-grid">
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🍊</span> Vitamin C</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Immune support, collagen synthesis, antioxidant</p>
+                            <p><strong>Type:</strong> Water-soluble</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 90mg (men), 75mg (women)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Rich Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Citrus fruits</span>
+                                <span class="food-item">Berries</span>
+                                <span class="food-item">Bell peppers</span>
+                                <span class="food-item">Broccoli</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">☀️</span> Vitamin D</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Bone health, immune function, calcium absorption</p>
+                            <p><strong>Type:</strong> Fat-soluble</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 600-800 IU (15-20 mcg)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Sunlight</span>
+                                <span class="food-item">Fatty fish</span>
+                                <span class="food-item">Fortified milk</span>
+                                <span class="food-item">Egg yolks</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🥬</span> B Vitamins</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Energy metabolism, nervous system, red blood cell formation</p>
+                            <p><strong>Types:</strong> B1, B2, B3, B6, B12, Folate, etc.</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Values:</strong> Vary by type (0.4-18mg)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Whole grains</span>
+                                <span class="food-item">Leafy greens</span>
+                                <span class="food-item">Meat</span>
+                                <span class="food-item">Legumes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🥕</span> Vitamin A</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Vision, immune function, cell growth</p>
+                            <p><strong>Type:</strong> Fat-soluble</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 900 mcg (men), 700 mcg (women)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Carrots</span>
+                                <span class="food-item">Sweet potatoes</span>
+                                <span class="food-item">Spinach</span>
+                                <span class="food-item">Liver</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Minerals Tab -->
+            <div id="minerals" class="tab-content">
+                <h2>Minerals: Building Blocks of Health</h2>
+                
+                <div class="nutrient-grid">
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🦴</span> Calcium</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Bone and teeth health, muscle function, nerve transmission</p>
+                            <p><strong>Type:</strong> Macrominerals</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 1,000-1,200mg
+                        </div>
+                        <div class="food-sources">
+                            <h4>Rich Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Dairy products</span>
+                                <span class="food-item">Leafy greens</span>
+                                <span class="food-item">Sardines</span>
+                                <span class="food-item">Almonds</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🩸</span> Iron</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Oxygen transport, energy production, immune function</p>
+                            <p><strong>Types:</strong> Heme (meat) and non-heme (plants)</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 8mg (men), 18mg (women)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Red meat</span>
+                                <span class="food-item">Spinach</span>
+                                <span class="food-item">Lentils</span>
+                                <span class="food-item">Fortified cereals</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🧂</span> Potassium</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Blood pressure regulation, muscle contractions, nerve signals</p>
+                            <p><strong>Balance:</strong> Works with sodium</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 3,500-4,700mg
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Bananas</span>
+                                <span class="food-item">Potatoes</span>
+                                <span class="food-item">Beans</span>
+                                <span class="food-item">Yogurt</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🦪</span> Zinc</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Function:</strong> Immune function, wound healing, protein synthesis</p>
+                            <p><strong>Type:</strong> Trace mineral</p>
+                        </div>
+                        <div class="daily-value">
+                            <strong>Daily Value:</strong> 11mg (men), 8mg (women)
+                        </div>
+                        <div class="food-sources">
+                            <h4>Sources:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Oysters</span>
+                                <span class="food-item">Beef</span>
+                                <span class="food-item">Pumpkin seeds</span>
+                                <span class="food-item">Chickpeas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sources Tab -->
+            <div id="sources" class="tab-content">
+                <h2>Creating a Balanced Diet</h2>
+                
+                <div class="intro-section">
+                    <h2>MyPlate Guidelines</h2>
+                    <p>The USDA MyPlate model recommends filling half your plate with fruits and vegetables, one quarter with whole grains, and one quarter with lean protein, plus dairy.</p>
+                </div>
+
+                <div class="nutrient-grid">
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🍎</span> Fruits & Vegetables</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Goal:</strong> 5-9 servings daily</p>
+                            <p><strong>Benefits:</strong> Vitamins, minerals, fiber, antioxidants</p>
+                        </div>
+                        <div class="food-sources">
+                            <h4>Variety is Key:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Dark leafy greens</span>
+                                <span class="food-item">Colorful berries</span>
+                                <span class="food-item">Citrus fruits</span>
+                                <span class="food-item">Cruciferous vegetables</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🌾</span> Whole Grains</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Goal:</strong> At least half of grains should be whole</p>
+                            <p><strong>Benefits:</strong> B vitamins, fiber, sustained energy</p>
+                        </div>
+                        <div class="food-sources">
+                            <h4>Choose:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Brown rice</span>
+                                <span class="food-item">Quinoa</span>
+                                <span class="food-item">Oats</span>
+                                <span class="food-item">Whole wheat</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🐟</span> Lean Proteins</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Goal:</strong> 5-6.5 oz equivalents daily</p>
+                            <p><strong>Variety:</strong> Mix animal and plant proteins</p>
+                        </div>
+                        <div class="food-sources">
+                            <h4>Options:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Fish & seafood</span>
+                                <span class="food-item">Poultry</span>
+                                <span class="food-item">Beans & lentils</span>
+                                <span class="food-item">Nuts & seeds</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nutrient-card">
+                        <h3><span class="nutrient-icon">🥛</span> Dairy & Alternatives</h3>
+                        <div class="nutrient-info">
+                            <p><strong>Goal:</strong> 3 cups daily</p>
+                            <p><strong>Benefits:</strong> Calcium, protein, vitamin D</p>
+                        </div>
+                        <div class="food-sources">
+                            <h4>Choose:</h4>
+                            <div class="food-list">
+                                <span class="food-item">Low-fat milk</span>
+                                <span class="food-item">Yogurt</span>
+                                <span class="food-item">Cheese</span>
+                                <span class="food-item">Fortified alternatives</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Citations Section -->
+            <div class="citations">
+                <h3>📚 References & Sources</h3>
+                <ul class="citation-list">
+                    <li>
+                        <strong>USDA National Agricultural Library:</strong>
+                        <a href="https://www.nal.usda.gov/human-nutrition-and-food-safety/food-composition/macronutrients" target="_blank">
+                            Macronutrients Information
+                        </a>
+                    </li>
+                    <li>
+                        <strong>NIH Office of Dietary Supplements:</strong>
+                        <a href="https://ods.od.nih.gov/factsheets/list-VitaminsMinerals/" target="_blank">
+                            Vitamin and Mineral Fact Sheets
+                        </a>
+                    </li>
+                    <li>
+                        <strong>NIH Office of Dietary Supplements:</strong>
+                        <a href="https://ods.od.nih.gov/HealthInformation/dailyvalues.aspx" target="_blank">
+                            Daily Values (DVs) Guidelines
+                        </a>
+                    </li>
+                    <li>
+                        <strong>USDA MyPlate:</strong>
+                        <a href="https://www.myplate.gov/eat-healthy/what-is-myplate" target="_blank">
+                            Dietary Guidelines and Recommendations
+                        </a>
+                    </li>
+                    <li>
+                        <strong>Dietary Guidelines for Americans:</strong>
+                        <a href="https://www.dietaryguidelines.gov/" target="_blank">
+                            2020-2025 Dietary Guidelines
+                        </a>
+                    </li>
+                    <li>
+                        <strong>NIH National Institute on Aging:</strong>
+                        <a href="https://www.nia.nih.gov/health/vitamins-and-supplements/vitamins-and-minerals-older-adults" target="_blank">
+                            Vitamins and Minerals for Health
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function toggleExpand(card) {
+            const hiddenContent = card.querySelector('.hidden-content');
+            const isExpanded = card.classList.contains('expanded');
+
+            if (isExpanded) {
+                card.classList.remove('expanded');
+                hiddenContent.classList.remove('show');
+            } else {
+                card.classList.add('expanded');
+                hiddenContent.classList.add('show');
+            }
+        }
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Initially hide cards for animation
+            const cards = document.querySelectorAll('.nutrient-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+
+            // Add hover effects for food items
+            const foodItems = document.querySelectorAll('.food-item');
+            foodItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const activeTab = document.querySelector('.nav-tab.active');
+            const currentIndex = Array.from(tabs).indexOf(activeTab);
+
+            if (e.key === 'ArrowRight' && currentIndex < tabs.length - 1) {
+                tabs[currentIndex + 1].click();
+            } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                tabs[currentIndex - 1].click();
+            }
+        });
+    </script>
+</body>
+</html>
